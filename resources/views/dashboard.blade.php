@@ -323,13 +323,13 @@
 
             {{-- ===== CUACA TERKINI ===== --}}
             @php
-                {{--
+                /*
                     ⚠️ DATA DUMMY — Nanti diganti dengan data dari API cuaca (misal OpenWeatherMap).
                     Format yang diharapkan dari API:
                     - $cuacaSekarang: array berisi suhu, kondisi cuaca, kelembaban, kecepatan angin, kota
                     - $prakiraan: array 5 item, masing-masing berisi hari, ikon, suhu tertinggi, suhu terendah, label kondisi
-                --}}
-                $kota = 'Bandung'; {{-- Nanti diambil dari lahan aktif user --}}
+                */
+                $kota = 'Bandung'; // Nanti diambil dari lahan aktif user
 
                 $cuacaSekarang = [
                     'suhu'         => 27,         // derajat Celsius
