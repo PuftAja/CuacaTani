@@ -1,3 +1,4 @@
+{{-- Layout Guest CuacaTani: tampilan split-screen untuk halaman auth --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
