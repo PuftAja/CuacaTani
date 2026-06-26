@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | OpenWeatherMap
+    |--------------------------------------------------------------------------
+    |
+    | API key untuk OpenWeatherMap (free tier).
+    | Isi OPENWEATHER_API_KEY di file .env untuk mengaktifkan integrasi real.
+    |
+    */
+    'openweather' => [
+        'key' => env('OPENWEATHER_API_KEY'),
+        'url' => env('OPENWEATHER_API_URL', 'https://api.openweathermap.org/data/2.5'),
+    ],
+
 ];
