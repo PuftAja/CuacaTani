@@ -391,7 +391,22 @@
             <div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
                     <h2 style="font-size:1.1rem; font-weight:600; color:#374151; margin:0;">🌱 Rekomendasi Aktivitas Bertani</h2>
+
+                    @if ($totalLahan > 1)
+                    <form method="GET" action="{{ route('dashboard') }}" style="display:flex; align-items:center; gap:0.5rem;">
+                        <label style="font-size:0.8rem; color:#6b7280;">Pilih Lahan:</label>
+                        <select name="lahan_id" onchange="this.form.submit()"
+                                style="font-size:0.8rem; padding:0.25rem 0.5rem; border:1px solid #d1d5db; border-radius:0.375rem; background:white; color:#374151; cursor:pointer;">
+                            @foreach ($lahans as $lahan)
+                            <option value="{{ $lahan->id }}" {{ $lahanAktif && $lahanAktif->id === $lahan->id ? 'selected' : '' }}>
+                                {{ ucfirst($lahan->komoditas) }} — {{ $lahan->kota }} ({{ $lahan->luas_lahan }} Ha)
+                            </option>
+                            @endforeach
+                        </select>
+                    </form>
+                    @else
                     <span style="font-size:0.8rem; color:#9ca3af;">Untuk {{ ucfirst($komoditas) }} di {{ $kota }}</span>
+                    @endif
                 </div>
                 <div style="display:grid; gap:0.75rem;">
                     @foreach ($rekomendasi as $rec)
