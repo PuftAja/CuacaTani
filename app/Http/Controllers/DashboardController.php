@@ -5,14 +5,22 @@ namespace App\Http\Controllers;
 use App\Services\WeatherService;
 use App\Services\RecommendationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    protected WeatherService $weather;
+    /** @var RecommendationService */
+    protected RecommendationService $recommendation;
+
     public function __construct(
-        protected WeatherService $weather,
-        protected RecommendationService $recommendation,
-    ) {}
+        WeatherService $weather,
+        RecommendationService $recommendation,
+    ) {
+        $this->weather = $weather;
+        $this->recommendation = $recommendation;
+    }
 
     /**
      * Dashboard utama: tampilkan cuaca terkini + rekomendasi
@@ -20,7 +28,9 @@ class DashboardController extends Controller
      */
     public function index(Request $request): View
     {
-        $lahans = auth()->user()->lahans;
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $lahans = $user->lahans;
         $totalLahan = $lahans->count();
         $totalHektar = $lahans->sum("luas_lahan");
         $jumlahPadi = $lahans->where("komoditas", "padi")->count();

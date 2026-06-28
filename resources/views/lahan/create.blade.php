@@ -1,55 +1,71 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Tambah Lahan Baru
+            ➕ Tambah Lahan Baru
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div style="background:white; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,0.06); padding:2rem;">
 
-                {{-- Tampilkan pesan error validasi jika ada --}}
+                {{-- Error --}}
                 @if ($errors->any())
-                    <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
-                        <ul class="list-disc list-inside">
+                    <div style="margin-bottom:1.25rem; padding:0.75rem 1rem; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; font-size:0.82rem; color:#dc2626;">
+                        <ul style="list-style:none; margin:0; padding:0;">
                             @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
+                                <li style="padding:0.15rem 0;">⚠️ {{ $error }}</li>
                             @endforeach
                         </ul>
                     </div>
                 @endif
 
+                <div style="text-align:center; margin-bottom:1.75rem;">
+                    <div style="width:56px; height:56px; background:linear-gradient(135deg,#dcfce7,#bbf7d0); border-radius:16px; display:inline-flex; align-items:center; justify-content:center; font-size:1.75rem; margin-bottom:0.75rem;">🌾</div>
+                    <h3 style="font-size:1.15rem; font-weight:700; color:#1e293b;">Data Lahan Baru</h3>
+                    <p style="font-size:0.82rem; color:#94a3b8; margin-top:0.2rem;">Isi data lahan Anda untuk mendapatkan rekomendasi</p>
+                </div>
+
                 <form method="POST" action="{{ route('lahan.store') }}">
                     @csrf
 
-                    <div class="mb-4">
-                        <label for="kota">Kota</label><br>
-                        {{-- Nama kota diisi bebas karena dipakai langsung sebagai parameter API cuaca --}}
-                        <input id="kota" type="text" name="kota" value="{{ old('kota') }}"
-                               placeholder="Contoh: Bandung" style="width:100%; padding:6px; margin-top:4px;">
+                    <div style="margin-bottom:1.25rem;">
+                        <label style="display:block; font-size:0.82rem; font-weight:600; color:#334155; margin-bottom:0.4rem;">📍 Lokasi Kota</label>
+                        <input type="text" name="kota" value="{{ old('kota') }}" required
+                               placeholder="Contoh: Bandung, Purwakarta"
+                               style="width:100%; padding:0.65rem 0.9rem; border:1.5px solid #e2e8f0; border-radius:10px; font-size:0.9rem; background:#f8fafc; outline:none; transition:all 0.2s; font-family:inherit;"
+                               onfocus="this.style.borderColor='#22c55e'; this.style.background='white'; this.style.boxShadow='0 0 0 3px rgba(34,197,94,0.12)'"
+                               onblur="this.style.borderColor='#e2e8f0'; this.style.background='#f8fafc'; this.style.boxShadow=''">
                     </div>
 
-                    <div class="mb-4">
-                        <label for="komoditas">Komoditas</label><br>
-                        <select id="komoditas" name="komoditas" style="width:100%; padding:6px; margin-top:4px;">
-                            <option value="">-- Pilih Komoditas --</option>
-                            <option value="padi"   {{ old('komoditas') === 'padi'   ? 'selected' : '' }}>Padi</option>
-                            <option value="jagung" {{ old('komoditas') === 'jagung' ? 'selected' : '' }}>Jagung</option>
+                    <div style="margin-bottom:1.25rem;">
+                        <label style="display:block; font-size:0.82rem; font-weight:600; color:#334155; margin-bottom:0.4rem;">🌱 Jenis Komoditas</label>
+                        <select name="komoditas" required
+                                style="width:100%; padding:0.65rem 0.9rem; border:1.5px solid #e2e8f0; border-radius:10px; font-size:0.9rem; background:#f8fafc; outline:none; cursor:pointer; font-family:inherit; color:#334155;">
+                            <option value="" disabled {{ old('komoditas') ? '' : 'selected' }}>-- Pilih Komoditas --</option>
+                            <option value="padi"   {{ old('komoditas') === 'padi'   ? 'selected' : '' }}>🌾 Padi</option>
+                            <option value="jagung" {{ old('komoditas') === 'jagung' ? 'selected' : '' }}>🌽 Jagung</option>
                         </select>
                     </div>
 
-                    <div class="mb-4">
-                        <label for="luas_lahan">Luas Lahan (Hektar)</label><br>
-                        <input id="luas_lahan" type="number" name="luas_lahan" value="{{ old('luas_lahan') }}"
-                               step="0.01" min="0.1" placeholder="Contoh: 2.50"
-                               style="width:100%; padding:6px; margin-top:4px;">
+                    <div style="margin-bottom:1.75rem;">
+                        <label style="display:block; font-size:0.82rem; font-weight:600; color:#334155; margin-bottom:0.4rem;">📐 Luas Lahan (Hektar)</label>
+                        <input type="number" name="luas_lahan" value="{{ old('luas_lahan') }}"
+                               step="0.01" min="0.1" required
+                               placeholder="Contoh: 2.50"
+                               style="width:100%; padding:0.65rem 0.9rem; border:1.5px solid #e2e8f0; border-radius:10px; font-size:0.9rem; background:#f8fafc; outline:none; transition:all 0.2s; font-family:inherit;"
+                               onfocus="this.style.borderColor='#22c55e'; this.style.background='white'; this.style.boxShadow='0 0 0 3px rgba(34,197,94,0.12)'"
+                               onblur="this.style.borderColor='#e2e8f0'; this.style.background='#f8fafc'; this.style.boxShadow=''">
                     </div>
 
-                    <button type="submit" style="padding:8px 16px; background:#2563EB; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-                        Simpan
-                    </button>
-                    <a href="{{ route('lahan.index') }}" style="margin-left:12px;">Batal</a>
+                    <div style="display:flex; gap:0.75rem;">
+                        <button type="submit" style="flex:1; padding:0.7rem; border:none; border-radius:10px; background:linear-gradient(135deg,#22c55e,#16a34a); color:white; font-size:0.875rem; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(22,163,74,0.25); transition:all 0.2s; font-family:inherit;">
+                            ✅ Simpan
+                        </button>
+                        <a href="{{ route('lahan.index') }}" style="padding:0.7rem 1.25rem; border:1.5px solid #e2e8f0; border-radius:10px; color:#64748b; font-size:0.875rem; font-weight:500; text-decoration:none; background:white; transition:all 0.2s; text-align:center;">
+                            Batal
+                        </a>
+                    </div>
                 </form>
 
             </div>

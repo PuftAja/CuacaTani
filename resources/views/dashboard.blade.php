@@ -254,6 +254,25 @@
             margin-top: 0.6rem;
             opacity: 0.85;
         }
+
+        /* Rekomendasi card variants */
+        .step-siram { border-left-color: #0ea5e9; }
+        .step-tunda_pemupukan { border-left-color: #ef4444; }
+        .step-pemupukan_normal { border-left-color: #16a34a; }
+        .step-lindungi_tanaman { border-left-color: #8b5cf6; }
+        .step-tidak_ada { border-left-color: #9ca3af; }
+        .step-default { border-left-color: #9ca3af; }
+
+        .step-number-siram { background: #0ea5e9; }
+        .step-number-tunda_pemupukan { background: #ef4444; }
+        .step-number-pemupukan_normal { background: #16a34a; }
+        .step-number-lindungi_tanaman { background: #8b5cf6; }
+        .step-number-tidak_ada { background: #6b7280; }
+        .step-number-default { background: #6b7280; }
+
+        /* Lahan card border variants */
+        .lahan-padi { border-left: 4px solid #16a34a; }
+        .lahan-jagung { border-left: 4px solid #f59e0b; }
     </style>
 
     <div class="py-8">
@@ -410,8 +429,8 @@
                 </div>
                 <div style="display:grid; gap:0.75rem;">
                     @foreach ($rekomendasi as $rec)
-                    <div class="step-card" style="border-left-color: {{ match($rec['aksi']) { 'siram' => '#0ea5e9', 'tunda_pemupukan' => '#ef4444', 'pemupukan_normal' => '#16a34a', default => '#9ca3af' } }};">
-                        <div class="step-number" style="background: {{ match($rec['aksi']) { 'siram' => '#0ea5e9', 'tunda_pemupukan' => '#ef4444', 'pemupukan_normal' => '#16a34a', default => '#6b7280' } }};">
+                    <div class="step-card step-{{ $rec['aksi'] }}">
+                        <div class="step-number step-number-{{ $rec['aksi'] }}">
                             {{ $rec['ikon'] }}
                         </div>
                         <div style="flex:1;">
@@ -480,7 +499,7 @@
                 </div>
                 <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:1rem;">
                     @foreach ($lahans->take(3) as $lahan)
-                    <div class="stat-card" style="border-left: 4px solid {{ $lahan->komoditas === 'padi' ? '#16a34a' : '#f59e0b' }};">
+                    <div class="stat-card lahan-{{ $lahan->komoditas }}">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <div>
                                 <div style="font-size:1.25rem; margin-bottom:0.25rem;">
