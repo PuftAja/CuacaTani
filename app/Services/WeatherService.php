@@ -60,6 +60,7 @@ class WeatherService
                     $data["weather"][0]["description"] ?? "Tidak Diketahui",
                 "ikon" => $this->mapWeatherIcon(
                     $data["weather"][0]["main"] ?? "Clear",
+                    $data["weather"][0]["icon"] ?? "",
                 ),
                 "kelembaban" => $data["main"]["humidity"] ?? 0,
                 "angin" => round(($data["wind"]["speed"] ?? 0) * 3.6), // m/s → km/jam
@@ -121,10 +122,11 @@ class WeatherService
                 $maxSuhu = max(array_column($items, "max"));
                 // Ambil kondisi dominan dari data paling banyak muncul
                 $kondisi = $this->dominantCondition($items);
+                $iconCode = $this->dominantIcon($items);
 
                 $hasil[] = [
                     "hari" => $hariJudul[$i] ?? "Hari ke-{$i}",
-                    "ikon" => $this->mapWeatherIcon($kondisi),
+                    "ikon" => $this->mapWeatherIcon($kondisi, $iconCode),
                     "suhu_max" => round($maxSuhu),
                     "suhu_min" => round($minSuhu),
                     "kondisi" => $this->mapConditionLabel($kondisi),
@@ -202,17 +204,20 @@ class WeatherService
 
     // ─── Helper ───
 
-    protected function mapWeatherIcon(string $main): string
-    {
+    protected function mapWeatherIcon(
+        string $main,
+        string $iconCode = "",
+    ): string {
+        $isNight = str_ends_with($iconCode, "n");
         return match (strtolower($main)) {
-            "clear" => "☀️",
-            "clouds" => "⛅",
+            "clear" => $isNight ? "🌙" : "☀️",
+            "clouds" => $isNight ? "☁️" : "⛅",
             "rain" => "🌧️",
             "drizzle" => "🌦️",
             "thunderstorm" => "⛈️",
             "snow" => "❄️",
             "mist", "fog", "haze" => "🌫️",
-            default => "🌤️",
+            default => $isNight ? "🌙" : "🌤️",
         };
     }
 
@@ -256,6 +261,7 @@ class WeatherService
                 "min" => $item["main"]["temp_min"] ?? 0,
                 "max" => $item["main"]["temp_max"] ?? 0,
                 "main" => $item["weather"][0]["main"] ?? "Clouds",
+                "icon" => $item["weather"][0]["icon"] ?? "",
             ];
         }
 
@@ -277,5 +283,21 @@ class WeatherService
         arsort($counts);
 
         return array_key_first($counts);
+    }
+
+    /**
+     * Ambil icon code yang paling sering muncul (untuk day/night detection).
+     */
+    protected function dominantIcon(array $items): string
+    {
+        $counts = [];
+        foreach ($items as $item) {
+            $icon = $item["icon"] ?? "";
+            if ($icon) {
+                $counts[$icon] = ($counts[$icon] ?? 0) + 1;
+            }
+        }
+        arsort($counts);
+        return array_key_first($counts) ?? "";
     }
 }
