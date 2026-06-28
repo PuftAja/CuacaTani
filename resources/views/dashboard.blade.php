@@ -322,33 +322,6 @@
             </div>
 
             {{-- ===== CUACA TERKINI ===== --}}
-            @php
-                /*
-                    ⚠️ DATA DUMMY — Nanti diganti dengan data dari API cuaca (misal OpenWeatherMap).
-                    Format yang diharapkan dari API:
-                    - $cuacaSekarang: array berisi suhu, kondisi cuaca, kelembaban, kecepatan angin, kota
-                    - $prakiraan: array 5 item, masing-masing berisi hari, ikon, suhu tertinggi, suhu terendah, label kondisi
-                */
-                $kota = 'Bandung'; // Nanti diambil dari lahan aktif user
-
-                $cuacaSekarang = [
-                    'suhu'         => 27,         // derajat Celsius
-                    'kondisi'      => 'Berawan Sebagian',
-                    'ikon'         => '⛅',
-                    'kelembaban'   => 72,         // persen (%)
-                    'angin'        => 14,         // km/jam
-                    'curah_hujan'  => 0,          // mm/hari
-                    'terasa_seperti' => 29,       // feels like
-                ];
-
-                $prakiraan = [
-                    ['hari' => 'Hari Ini',  'ikon' => '⛅', 'suhu_max' => 28, 'suhu_min' => 22, 'kondisi' => 'Berawan'],
-                    ['hari' => 'Besok',     'ikon' => '🌧️', 'suhu_max' => 25, 'suhu_min' => 20, 'kondisi' => 'Hujan Ringan'],
-                    ['hari' => 'Lusa',      'ikon' => '⛈️', 'suhu_max' => 23, 'suhu_min' => 19, 'kondisi' => 'Hujan Lebat'],
-                    ['hari' => 'Hari 4',    'ikon' => '🌤️', 'suhu_max' => 29, 'suhu_min' => 22, 'kondisi' => 'Cerah Berawan'],
-                    ['hari' => 'Hari 5',    'ikon' => '☀️', 'suhu_max' => 31, 'suhu_min' => 23, 'kondisi' => 'Cerah'],
-                ];
-            @endphp
 
             <div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
@@ -386,7 +359,11 @@
                                 <span>🌧️</span>
                                 <span>Curah Hujan <strong>{{ $cuacaSekarang['curah_hujan'] }} mm</strong></span>
                             </div>
+                            @if ($isDummy)
                             <span class="weather-source-badge">🔄 Data Dummy (belum terhubung API)</span>
+                            @else
+                            <span class="weather-source-badge">✅ Data dari OpenWeatherMap · {{ $kota }}</span>
+                            @endif
                         </div>
                     </div>
 
@@ -408,6 +385,36 @@
 
                 </div>
             </div>
+
+            {{-- ===== REKOMENDASI TANAM ===== --}}
+            @if (!empty($rekomendasi))
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+                    <h2 style="font-size:1.1rem; font-weight:600; color:#374151; margin:0;">🌱 Rekomendasi Aktivitas Bertani</h2>
+                    <span style="font-size:0.8rem; color:#9ca3af;">Untuk {{ ucfirst($komoditas) }} di {{ $kota }}</span>
+                </div>
+                <div style="display:grid; gap:0.75rem;">
+                    @foreach ($rekomendasi as $rec)
+                    <div class="step-card" style="border-left-color: {{ match($rec['aksi']) { 'siram' => '#0ea5e9', 'tunda_pemupukan' => '#ef4444', 'pemupukan_normal' => '#16a34a', default => '#9ca3af' } }};">
+                        <div class="step-number" style="background: {{ match($rec['aksi']) { 'siram' => '#0ea5e9', 'tunda_pemupukan' => '#ef4444', 'pemupukan_normal' => '#16a34a', default => '#6b7280' } }};">
+                            {{ $rec['ikon'] }}
+                        </div>
+                        <div style="flex:1;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.25rem;">
+                                <div style="font-weight:600; color:#111827;">{{ $prakiraan[$loop->index]['hari'] ?? $rec['tanggal'] }}</div>
+                                <span style="font-size:0.75rem; background:#f0fdf4; color:#16a34a; padding:2px 8px; border-radius:9999px; font-weight:500;">
+                                    {{ $rec['tanggal'] }}
+                                </span>
+                            </div>
+                            <div style="font-size:0.875rem; color:#4b5563; margin-top:0.25rem; line-height:1.5;">
+                                {{ $rec['rekomendasi'] }}
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
             {{-- ===== CARA KERJA APLIKASI ===== --}}
             <div>
