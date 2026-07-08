@@ -1,81 +1,94 @@
-# Mahasiswa 1 — Auth & Manajemen Lahan Petani
+# Mhs 1 — Auth & Manajemen Lahan Petani
 
-> Baca `agent.md` dulu untuk konteks umum project dan filosofi coding.
+## Tugas
 
-## Tugas Kamu
+1. **Sistem Autentikasi** — Register, Login, Logout menggunakan Laravel Breeze
+2. **Manajemen Lahan Petani** — CRUD (Create, Read, Update, Delete) data lahan dengan field:
+   - `kota` — lokasi lahan (string)
+   - `komoditas` — jenis tanaman (padi / jagung)
+   - `luas_lahan` — luas dalam hektar (numeric)
 
-1. Sistem login/register untuk petani (Auth).
-2. CRUD data lahan: luas lahan + komoditas (padi/jagung) + kota (buat dipakai Mhs 2 ambil data cuaca).
+---
 
-## Kenapa Ini Penting Buat Bagian Lain
+## Relasi & Alur Data
 
-Data **kota** dan **komoditas** yang kamu simpan di sini akan dipakai langsung sama Mhs 2 (buat fetch cuaca) dan Mhs 3 (buat nentuin rekomendasi). Jadi pastikan nama kolom dan format datanya konsisten sama yang ditulis di `agent.md` bagian "Kontrak Data".
-
-## Saran Pengerjaan (Step by Step)
-
-### 1. Auth
-Paling gampang: pakai **Laravel Breeze** (`composer require laravel/breeze --dev` lalu `php artisan breeze:install`). Ini udah nyediain login/register/logout siap pakai, kamu nggak perlu nulis dari nol. Lebih simple dan lebih kecil kemungkinan ada bug keamanan.
-
-### 2. Migration untuk tabel `lahans`
-
-```php
-Schema::create('lahans', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained(); // pemilik lahan
-    $table->string('kota');              // dipakai Mhs 2
-    $table->enum('komoditas', ['padi', 'jagung']); // dipakai Mhs 3
-    $table->decimal('luas_lahan', 8, 2); // dalam hektar
-    $table->timestamps();
-});
+```
+User (petani) ──hasMany──> Lahan
 ```
 
-### 3. Model `Lahan.php`
+- Satu petani bisa punya banyak lahan.
+- Setiap lahan hanya dimiliki satu petani (foreign key `user_id`).
+- Semua operasi CRUD dicek kepemilikan: petani hanya bisa edit/hapus lahannya sendiri.
+
+---
+
+## File & Path
+
+### Model
+
+| File | Fungsi |
+|---|---|
+| `app/Models/User.php` | Model User bawaan Laravel — relasi `lahans()` didefinisikan di sini |
+| `app/Models/Lahan.php` | Model Lahan — `$fillable = ['user_id','kota','komoditas','luas_lahan']`, relasi `belongsTo User` |
+
+### Controller
+
+| File | Fungsi |
+|---|---|
+| `app/Http/Controllers/Auth/RegisteredUserController.php` | Proses registrasi akun baru |
+| `app/Http/Controllers/Auth/AuthenticatedSessionController.php` | Proses login & logout |
+| `app/Http/Controllers/LahanController.php` | CRUD lahan — `index()`, `create()`, `store()`, `edit()`, `update()`, `destroy()` |
+
+### View (Blade)
+
+| File | Fungsi |
+|---|---|
+| `resources/views/auth/register.blade.php` | Form register (nama, email, password) |
+| `resources/views/auth/login.blade.php` | Form login (email, password, remember me) |
+| `resources/views/lahan/index.blade.php` | Daftar semua lahan milik petani yang login |
+| `resources/views/lahan/create.blade.php` | Form tambah lahan baru |
+| `resources/views/lahan/edit.blade.php` | Form edit lahan yang sudah ada |
+| `resources/views/layouts/guest.blade.php` | Layout guest (hero + navbar + form card) untuk halaman auth |
+| `resources/views/layouts/app.blade.php` | Layout utama setelah login (navbar glass + konten) |
+
+### Route
+
+| File | Fungsi |
+|---|---|
+| `routes/web.php` | Route `/dashboard`, route resource `lahan` (semua pakai middleware `auth`) |
+| `routes/auth.php` | Route auth (login, register, logout, dll) — otomatis dari Breeze |
+
+---
+
+## Detail CRUD Lahan
+
+### Validasi (`store` & `update`)
 
 ```php
-class Lahan extends Model
-{
-    protected $fillable = ['user_id', 'kota', 'komoditas', 'luas_lahan'];
+$request->validate([
+    'kota'       => 'required|string|max:100',
+    'komoditas'  => 'required|in:padi,jagung',
+    'luas_lahan' => 'required|numeric|min:0.1',
+]);
+```
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+### Authorization
+
+```php
+// Setiap method edit/update/destroy cek:
+if ($lahan->user_id !== auth()->id()) {
+    abort(403);
 }
 ```
 
-### 4. Controller `LahanController.php`
+---
 
-Bikin CRUD standar: `index`, `create`, `store`, `edit`, `update`, `destroy`. Karena ini cuma data sederhana, **nggak perlu Service class** di bagian ini — controller langsung manggil Model itu sudah cukup rapi.
+## Alur Lengkap
 
-```php
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'kota' => 'required|string|max:100',
-        'komoditas' => 'required|in:padi,jagung',
-        'luas_lahan' => 'required|numeric|min:0.1',
-    ]);
-
-    $validated['user_id'] = auth()->id();
-
-    Lahan::create($validated);
-
-    return redirect()->route('lahan.index')->with('success', 'Lahan berhasil ditambahkan');
-}
-```
-
-### 5. View
-
-Form sederhana pakai Blade: input teks untuk kota, dropdown untuk komoditas (padi/jagung), input angka untuk luas lahan. Nggak perlu styling fancy dulu, fokus fungsi jalan dulu.
-
-## Checklist Selesai
-
-- [ ] Petani bisa register & login
-- [ ] Petani bisa tambah/edit/hapus data lahan (kota, komoditas, luas)
-- [ ] Validasi input jalan (komoditas cuma padi/jagung, luas lahan harus angka positif)
-- [ ] Data lahan bisa diakses lewat `auth()->user()->lahans` (kasih relasi `hasMany` di Model `User`)
-
-## Hal yang JANGAN Dilakukan
-
-- Jangan bikin sistem role/permission yang kompleks — petani cuma satu jenis user.
-- Jangan simpan kota sebagai dropdown/relasi tabel kota terpisah — cukup `string` biasa, biar simple buat Mhs 2 langsung pakai sebagai parameter API.
+1. User buka `/` → landing page
+2. Klik "Daftar" → `register.blade.php` → `RegisteredUserController` → login otomatis
+3. Redirect ke `/dashboard` → lihat cuaca & rekomendasi (dari Mhs 2 & Mhs 3)
+4. Klik "Data Lahan" → `lahan/index.blade.php` → lihat semua lahan
+5. Klik "Tambah Lahan" → `lahan/create.blade.php` → isi kota + komoditas + luas → `store()`
+6. Klik Edit → `lahan/edit.blade.php` → ubah data → `update()`
+7. Klik Hapus → `destroy()` → redirect ke index
