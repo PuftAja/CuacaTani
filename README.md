@@ -21,8 +21,8 @@ Website ini menyediakan informasi cuaca berdasarkan lokasi lahan sehingga penggu
 | Nama | NPM |
 |------|------|
 | M. Ihsan Nur Wahyudi | 251351074 |
-| Ridho | - |
-| Reggy | - |
+| Ridho | 251351114 |
+| Reggy | 251351109 |
 
 ---
 
