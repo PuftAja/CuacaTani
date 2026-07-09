@@ -2,7 +2,7 @@
     <div class="navbar-inner">
         <a href="{{ route('dashboard') }}" class="logo">
             <div class="logo-icon">🌾</div>
-            <span>CuacaTani</span>
+            <span>CuacaTani Saya</span>
         </a>
         <div class="nav-links">
             <a href="{{ route('dashboard') }}"
